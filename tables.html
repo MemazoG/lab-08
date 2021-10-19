@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Mesas</title>
+
+  <!-- Latest compiled and minified CSS & JS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://code.jquery.com/jquery.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="jumbotron">
+      <h1 class="text-center"><span class="fa fa-fire"></span> Hot Restaurant</h1>
+      <hr>
+      <h2 class="text-center">Reservaciones Actuales y Lista de espera</h2>
+      <br>
+
+      <div class="text-center">
+        <a href="/reserve"><button class="btn btn-lg btn-danger"><span class="fa fa-credit-card"></span> Reservar Mesa</button></a>
+        <a href="/"><button class="btn btn-lg btn-default"><span class="fa fa-home"></span></button></a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+
+        <!-- Current Tables in Use -->
+        <div class="card">
+          <div class="card-header">
+            <h4>Reservaciones Actuales</h4>
+          </div>
+          <div class="card-body">
+            <ul id="tableList" class="list-group"></ul>
+          </div>
+        </div>
+
+        <!-- Waiting List Card -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h4>Lista de Espera</h4>
+          </div>
+          <div class="card-body">
+            <ul id="waitList" class="list-group"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <footer class="footer mt-4">
+      <div class="container">
+        <p><a href="#" id="clear">Limpiar Reservaciones</a> | <a href="/api/tables">API Reservaciones</a> | <a href="/api/waitlist">API
+            Lista de Espera</a>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+
+    tables();
+    waitlist();
+  });
+
+  function tables() {
+    //GET objects tables and waitList to populate page
+    $.get("/api/tables", (data) => {
+      console.log(data);
+      //Empty list
+      $("#tableList").empty();
+
+      for (let i = 0; i < data.length; i++) {
+        let reservation =
+          `<li class="list-group-item mt-4">
+                <h2>Mesa #${i + 1}</h2>
+                <hr>
+                <h2>Nombre: ${data[i].customerName}</h2>
+                <h2>Email: ${data[i].customerEmail}</h2>
+                <h2>Teléfono: ${data[i].customerPhone}</h2>
+            </li>`;
+
+        $("#tableList").append(reservation);
+      }
+    })
+  }
+
+  function waitlist() {
+    $.get("/api/waitlist", (data) => {
+      //Empty list
+      $("#waitList").empty();
+
+      for (let i = 0; i < data.length; i++) {
+        let reservation =
+          `<li class="list-group-item mt-4">
+                <h2>Mesa #${i + 1}</h2>
+                <hr>
+                <h2>Nombre: ${data[i].customerName}</h2>
+                <h2>Email: ${data[i].customerEmail}</h2>
+                <h2>Teléfono: ${data[i].customerPhone}</h2>
+            </li>`;
+
+        $("#waitList").append(reservation);
+      }
+    })
+  }
+
+    $("#clear").on("click", function () {
+      $.ajax({
+        url: '/tables',
+        type: 'DELETE',
+        success: function (result) {
+          tables();
+          waitlist();
+        }
+      });
+    });
+</script>
